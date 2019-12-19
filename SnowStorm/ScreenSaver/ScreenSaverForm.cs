@@ -21,7 +21,6 @@ namespace ScreenSaver
         /// </summary>
         private Point mouseStartingLocation = Point.Empty;
 
-
         /// <summary>
         /// Animator that will draw the screen saver. 
         /// </summary>
@@ -29,11 +28,11 @@ namespace ScreenSaver
 
         public ScreenSaverForm(ScreenDrawer screenAnimator, int timerSpeed)
         {
-            InitializeComponent( );
-  
+            InitializeComponent();
+
             this.screenAnimator = screenAnimator;
             this.updateTimer.Interval = timerSpeed;
-            this.screenAnimator.Instantiate( this.ClientSize );
+            this.screenAnimator.Instantiate(this.ClientSize);
         }
 
         private void ScreenSaverForm_KeyDown(object sender, KeyEventArgs e)
@@ -119,7 +118,5 @@ namespace ScreenSaver
         {
             screenAnimator.Draw( e.Graphics, e.ClipRectangle.Size );
         }
-
-        
     }
 }

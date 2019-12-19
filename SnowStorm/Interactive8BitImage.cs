@@ -7,7 +7,7 @@ using System.Collections;
 namespace SnowStorm
 {
     /// <summary>
-    /// Implements a 32bppArgb or 24bpprgb image that's easy to manipulate.
+    /// Implements a 32bppArgb or 24bpprgb image that's fast but easy to manipulate.
     /// </summary>
     public class Interactive8BitImage
     {
@@ -377,7 +377,6 @@ namespace SnowStorm
 
                 default:
                     throw new NotImplementedException( );
-                    break;
             }
         
         }

@@ -28,34 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container( );
-            this.updateTimer = new System.Windows.Forms.Timer( this.components );
-            this.SuspendLayout( );
-            // 
-            // updateTimer
-            // 
+			this.components = new System.ComponentModel.Container();
+			this.updateTimer = new System.Windows.Forms.Timer(this.components);
+			this.SuspendLayout();
+			// 
+			// updateTimer
+			// 
             this.updateTimer.Tick += new System.EventHandler( this.updateTimer_Tick );
             // 
-            // ScreenSaverForm
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size( 284, 262 );
-            this.DoubleBuffered = true;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "ScreenSaverForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ScreenSaverForm";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Deactivate += new System.EventHandler( this.ScreenSaverForm_Deactivate );
-            this.Load += new System.EventHandler( this.ScreenSaverForm_Load );
-            this.Scroll += new System.Windows.Forms.ScrollEventHandler( this.ScreenSaverForm_Scroll );
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler( this.ScreenSaverForm_KeyDown );
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler( this.ScreenSaverForm_MouseClick );
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler( this.ScreenSaverForm_MouseMove );
-            this.ResumeLayout( false );
+			// 
+			// ScreenSaverForm
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(426, 403);
+			this.DoubleBuffered = true;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+			this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
+			this.Name = "ScreenSaverForm";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "ScreenSaverForm";
+			this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+			this.Deactivate += new System.EventHandler(this.ScreenSaverForm_Deactivate);
+			this.Load += new System.EventHandler(this.ScreenSaverForm_Load);
+			this.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScreenSaverForm_Scroll);
+			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ScreenSaverForm_KeyDown);
+			this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ScreenSaverForm_MouseClick);
+			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ScreenSaverForm_MouseMove);
+			this.ResumeLayout(false);
 
         }
 

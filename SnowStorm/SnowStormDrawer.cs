@@ -2,17 +2,12 @@
 //#define QUICK_FILL
 
 using System;
-using System.Collections.Generic;
 using System.Collections;
-using System.Linq;
-using System.Text;
-using ScreenSaver;
 using System.Drawing;
 using System.Diagnostics;
 
 using System.IO;
 using CustomSettings;
-using System.Diagnostics;
 
 namespace SnowStorm
 {
@@ -26,12 +21,10 @@ namespace SnowStorm
         /// When the last cycle of the update and draw cycle started.
         /// </summary>
         private DateTime algorithmStart;
-        /// <summary>
-        /// How long it took to draw and update the animateDrift.
-        /// </summary>
-        private long calculationTime;
 
-        private System.Diagnostics.Stopwatch algorithmTimer;
+        private System.Diagnostics.Stopwatch frameTimer;
+        private TimeSpan lastFrameTime;
+
         /// <summary>
         /// Size of the screen.
         /// </summary>
@@ -40,12 +33,13 @@ namespace SnowStorm
         /// <summary>
         /// How long it should snow before the drift starts emptying.  Time in milleseconds.
         /// </summary>
-        private const int SNOWING_TIME = 90 * 1000; 
+        private const int SNOWING_TIME = 90 * 1000;
         /// <summary>
         /// Number of milleseconds the program should try to maintain for one cycle
         /// of updating and drawing snowflakes.
         /// </summary>
-        private const int PERFORMANCE_TIME = 45;
+        private static readonly TimeSpan MIN_TIME_PER_FRAME = TimeSpan.FromMilliseconds(100);
+
         /// <summary>
         /// Number of flakes to add per cycle.
         /// </summary>
@@ -83,10 +77,6 @@ namespace SnowStorm
         /// </summary>
         private string userName;
         /// <summary>
-        /// Number of clock ticks it takes to reach the performance time.
-        /// </summary>
-        private int algorithmTicks;
-        /// <summary>
         /// Number of times in a row the speed goal hasn't been achieve by the algorithm
         /// </summary>
         private int underSpeedCounter = 0;
@@ -108,10 +98,8 @@ namespace SnowStorm
             algorithmStart = DateTime.Now;
             snowDriftTimer = new Stopwatch();
             snowDriftTimer.Start();
-            algorithmTimer = new System.Diagnostics.Stopwatch( );
-            algorithmTimer.Start( );
-
-            algorithmTicks = TimerSampling( PERFORMANCE_TIME * 10 ) / 10;
+            frameTimer = new System.Diagnostics.Stopwatch( );
+            frameTimer.Start( );
 
             // TODO: REMOVE QUICK FILL
 #if QUICK_FILL
@@ -119,14 +107,6 @@ namespace SnowStorm
                 animatedDrift.AddFlakes( );
 #endif
 
-        }
-
-        private static int TimerSampling(int milleseconds)
-        {
-            Stopwatch sleepWatcher = new Stopwatch( );
-            sleepWatcher.Start( );
-            System.Threading.Thread.Sleep( milleseconds );
-            return (int)sleepWatcher.ElapsedTicks;
         }
 
         /// <summary>
@@ -165,8 +145,7 @@ namespace SnowStorm
             animatedDrift.Draw( screenBuffer );
 
 #if STATS
-            screenBuffer.DrawString( userName + " Time: " + calculationTime.ToString().PadLeft(10, '0') +
-                                                ":" + algorithmTicks.ToString().PadLeft(10, '0') + "    # of Flakes: " + animatedDrift.SnowFlakeCount,
+            screenBuffer.DrawString( lastFrameTime.ToString().PadLeft(5, '0'),
                                      new Font( FontFamily.GenericSansSerif, 40 ),
                                      Brushes.Red, 0, 0 );
 #endif
@@ -175,15 +154,15 @@ namespace SnowStorm
         public void Update()
         {
             // Do performance check
-            calculationTime = algorithmTimer.ElapsedTicks;
-            algorithmTimer.Restart( );
+            lastFrameTime = frameTimer.Elapsed;
+            frameTimer.Restart( );
 
             // If still animating the snow drift
             if( !stopSnow )
             {
                 animatedDrift.Update( );
 
-                if( calculationTime < algorithmTicks )
+                if( lastFrameTime < MIN_TIME_PER_FRAME )
                 {
                     int flakesToAdd = MAX_FLAKES_RATE;
 
@@ -243,9 +222,6 @@ namespace SnowStorm
                     // If empty, wait about some odd time seconds before restarting
                 else if(snowDriftTimer.ElapsedMilliseconds > RESTART_TIME)
                 {                     
-                    // Re-check the algorithm ticks
-                    algorithmTicks = ( TimerSampling( PERFORMANCE_TIME * 10 ) / 10 + algorithmTicks ) / 2;
-
                     // Reset the drift
                     animatedDrift = new SnowDrift( screenSize );
                     snowDriftTimer.Restart();
