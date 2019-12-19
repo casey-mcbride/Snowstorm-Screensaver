@@ -94,10 +94,10 @@ namespace SnowStorm
 			renderedScene.SetAlpha(byte.MaxValue);
 
 			// Create the wind variations
-			generalDirection = new Vector(Random.Int(-5, 5), Random.Int(1, 4));
-			Vector variance = new Vector(12, 4);
+			generalDirection = new Vector(Random.Float(-3.5f, 3.5f), Random.Float(1, 2.5f));
+			Vector variance = new Vector(8, 3);
 
-			windVariations = new WindField[100];
+			windVariations = new WindField[60];
 			for (int i = 0; i < windVariations.Length; i++)
 			{
 				windVariations[i] = new WindField(screenSize.Width, screenSize.Height, generalDirection, variance, new Size(15, 15));

@@ -22,7 +22,7 @@ namespace ScreenSaver
 		/// <summary>
 		/// The number of milliesconds per frame to achieve the desired FPS.
 		/// </summary>
-		private const float MILLISECONDS_PER_FRAME = 1000f / 60 /*60 FPS is our target */;
+		private const float MILLISECONDS_PER_FRAME = 1000f / 80 /*80 FPS is our target */;
 
 		/// <summary>
 		/// Starting point of the mouse
@@ -131,12 +131,6 @@ namespace ScreenSaver
 			// Record the mouses location on startup
 			mouseStartingLocation = e.Location;
 #endif
-		}
-
-		private void updateTimer_Tick(object sender, EventArgs e)
-		{
-			snowStormDrawer.Animate( );
-			this.Invalidate( ); 
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
