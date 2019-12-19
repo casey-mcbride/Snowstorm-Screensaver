@@ -211,8 +211,8 @@ namespace SnowStorm
             int row = ( int )location.y / fieldResolution.Height;
 
             // Make sure the index maps to the field
-            if( row < 0 || row > field.GetLength( ROW_DIMENSION ) ||
-                column < 0 || column > field.GetLength( COLUMN_DIMENSION ) )
+            if( row < 0 || row >= field.GetLength( ROW_DIMENSION ) ||
+                column < 0 || column >= field.GetLength( COLUMN_DIMENSION ) )
             {
                 throw new IndexOutOfRangeException( );
             }
@@ -220,7 +220,7 @@ namespace SnowStorm
             direction = field[row, column];
             
 
-            // Make it so that the wind always falls to the ground
+            // Make it so that the flakes always move towards the ground
             if( direction.y <= .5f )
                 direction.y = .5f;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -8,6 +9,7 @@ namespace SnowStorm
     /// <summary>
     /// Represents a direction on a field.
     /// </summary>
+    [DebuggerDisplay("<{x}, {y}>")]
     public struct Vector
     {
         /// <summary>

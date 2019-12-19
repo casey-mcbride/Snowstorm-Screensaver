@@ -22,7 +22,7 @@ namespace SnowStorm
 		/// <summary>
 		/// Valid flake sizes that snowflakes will keep track of.
 		/// </summary>
-		public static readonly List<short> FLAKE_SIZES = new List<short>(new short[] { 20, 15, 7, 3 });
+		public static readonly List<short> FLAKE_SIZES = new List<short>(new short[] {25, 20, 15,12, 9, 7, 5, 3 });
 		/// <summary>
 		/// Maximum radius for a given snowflake.
 		/// </summary>
@@ -35,7 +35,7 @@ namespace SnowStorm
 		/// <summary>
 		/// How many patterns per size the snowflake can make.
 		/// </summary>
-		private const int MAX_PATTERNS_FOR_SIZE = 500;
+		private const int MAX_PATTERNS_FOR_SIZE = 400;
 
 		/// <summary>
 		/// Radius of the spots to put on the snowflake.

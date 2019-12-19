@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace SnowStorm
 {
@@ -13,6 +14,7 @@ namespace SnowStorm
 	class SnowDrift
 	{
 		#region Constants
+
 		/// <summary>
 		/// Minimum inertia for flakes.
 		/// </summary>
@@ -21,9 +23,11 @@ namespace SnowStorm
 		/// Maximum inertia for flakes.
 		/// </summary>
 		private const short MAX_INERTIA = 40;
+
 		#endregion
 
 		#region Fields
+
 		/// <summary>
 		/// Different wind fields, either switched out for different snowflakes or for different times.
 		/// </summary>
@@ -35,12 +39,7 @@ namespace SnowStorm
 		/// <summary>
 		/// All the snowflakes in this SnowDrift.
 		/// </summary>
-		private SnowFlake[] snowflakes;
-		/// <summary>
-		/// Number of flakes created in this SnowDrfit, not neccessarily the
-		/// number of active flakes.
-		/// </summary>
-		private int numFlakes = 0;
+		private HashSet<SnowFlake> snowflakes;
 
 		/// <summary>
 		/// Size of the screen, adjusted to fit in all the flake.
@@ -51,23 +50,26 @@ namespace SnowStorm
 		/// </summary>
 		private Vector generalDirection;
 
-		/// <summary>
-		/// Number of SnowFlakes to turn off as soon as possible
-		/// </summary>
-		private int snowFlakesToRemove = 0;
-		/// <summary>
-		/// Lowest index of any SnowFlake that is turned off.
-		/// </summary>
-		private int lowestTurnedOfIndex = int.MaxValue;
-		/// <summary>
-		/// Number of SnowFlakes that are turne
-		/// </summary>
-		private int snowFlakesTurnedOff = 0;
+		#endregion
+
+		#region Properties
 
 		/// <summary>
-		/// Lock for removing snowflakes from the drift.
+		/// Gets the number of SnowFlakes currently in this SnowDrift.
 		/// </summary>
-		private readonly object removalLock = new object();
+		public int SnowFlakeCount
+		{
+			get { return snowflakes.Count; }
+		}
+
+		/// <summary>
+		/// The number of flakes the snowdrift is aiming to have
+		/// </summary>
+		public int TargetFlakes
+		{
+			get;
+			set;
+		}
 
 		#endregion
 
@@ -98,59 +100,10 @@ namespace SnowStorm
 				windVariations[i] = new WindField(screenSize.Width, screenSize.Height, generalDirection, variance, new Size(15, 15));
 			}
 
-			snowflakes = new SnowFlake[Properties.Settings.Default.MaximumNumberOfFlakes];
-			AddFlakes();
+			snowflakes = new HashSet<SnowFlake>(Properties.Settings.Default.MaximumNumberOfFlakes);
 		}
 
-
-		/// <summary>
-		/// Adds another snowflake to the SnowDrift.
-		/// </summary>
-		public void AddFlakes()
-		{
-			// If some are going to be removed, just don't remove them
-			if (snowFlakesToRemove > 0)
-			{
-				snowFlakesToRemove--;
-			}
-			// Add back a previously created SnowFlake
-			else if (snowFlakesTurnedOff > 0)
-			{
-				// Reactivate a turned off flake
-				snowflakes[lowestTurnedOfIndex].IsActive = true;
-				snowFlakesTurnedOff--;
-
-				// Find the next flake that is turned off
-				while (lowestTurnedOfIndex < numFlakes && snowflakes[lowestTurnedOfIndex].IsActive)
-					lowestTurnedOfIndex++;
-
-				// Set the index out of bounds again so that adding more snowflakes doesn't invalidate the index
-				if (lowestTurnedOfIndex >= numFlakes)
-					lowestTurnedOfIndex = int.MaxValue;
-			}
-			else  // Create a new SnowFlake
-			{
-				// Don't overflow the array
-				if (numFlakes < snowflakes.Length)
-				{
-					// Create a snowflake and add it, giving it a somewhat random wind field
-					SnowFlake newFlake = new SnowFlake(GetNewSnowFlakePosition(),
-														new Vector(),
-														Random.Short(MIN_INERTIA, MAX_INERTIA),
-														windVariations[numFlakes % windVariations.Length],
-														 SnowFlake.GetRandomFlakeSize());
-					newFlake.IsActive = true;
-					snowflakes[numFlakes++] = newFlake;
-				}
-			}
-		}
-
-		public void RemoveFlakes(int numRemove)
-		{
-			snowFlakesToRemove += numRemove;
-			if (snowFlakesToRemove > numFlakes)
-				snowFlakesToRemove = numFlakes;
-		}
+		#region Methods
 
 		/// <summary>
 		/// Draws the snowdrift onto the graphics buffer.
@@ -158,19 +111,23 @@ namespace SnowStorm
 		/// <param name="g">Graphics buffer to draw on.</param>
 		public void Draw(Graphics g)
 		{
-			flakeBuffer.Clear(Color.Black);
-
-			// Draw each snowflakes pattern
-			Parallel.For(0, numFlakes, (i) =>
-			{
-				if (snowflakes[i].IsActive)
-					snowflakes[i].Draw(flakeBuffer);
-			});
+			updateDisplayBuffer();
 
 			//Draw to the buffer with enough border for the flakes to move offscreen
 			g.DrawImage(flakeBuffer.GetImage(),
 						 -(int)SnowFlake.FLAKE_SIZES.Max(),
 						 -(int)SnowFlake.FLAKE_SIZES.Max());
+		}
+
+		private void updateDisplayBuffer()
+		{
+			flakeBuffer.Clear(Color.Black);
+
+			// Draw each snowflakes pattern
+			Parallel.ForEach(snowflakes, flake =>
+			{
+				flake.Draw(flakeBuffer);
+			});
 		}
 
 		/// <summary>
@@ -210,69 +167,42 @@ namespace SnowStorm
 		/// </summary>
 		public void Update()
 		{
-			Parallel.For(0, numFlakes, (i) =>
-			{
-				UpdateFlake(i);
-			});
-		}
+			int snowflakeDelta = TargetFlakes - SnowFlakeCount;
 
-		/// <summary>
-		/// Updates the flake and the indicated index.
-		/// Removes some flakes if they're now out of bounds and
-		/// flakes need to be withdrawn.
-		/// </summary>
-		/// <param name="snowFlakeIndex">Index of flake to update.</param>
-		private void UpdateFlake(int snowFlakeIndex)
-		{
-			SnowFlake updating = snowflakes[snowFlakeIndex];
-			if (updating.IsActive)
+			// Add any snowflakes as needed
+			if(snowflakeDelta > 0)
 			{
-				if (!updating.InBounds(screenSize))
+				for (int i = 0; i < snowflakeDelta; i++)
 				{
-					updating.ReInit(GetNewSnowFlakePosition(),
-										new Vector(),
-										Random.Short(MIN_INERTIA, MAX_INERTIA));
 
-					// If SnowFlakes should be removed, remove one
-					if (snowFlakesToRemove > 0)
-					{
-						lock (removalLock)
-						{
-							// We'll repeat this test, just so the outer one can skip
-							// the lock if there are no snowflakes to remove 
-							if (snowFlakesToRemove > 0)
-							{
-								updating.IsActive = false;
-								snowFlakesToRemove--;
-								snowFlakesTurnedOff++;
-
-								// Update the index if necessary
-								if (snowFlakeIndex < lowestTurnedOfIndex)
-									lowestTurnedOfIndex = snowFlakeIndex;
-							}
-						}
-					}
+					SnowFlake newFlake = new SnowFlake(GetNewSnowFlakePosition(),
+														new Vector(),
+														Random.Short(MIN_INERTIA, MAX_INERTIA),
+														windVariations[SnowFlakeCount % windVariations.Length],
+														SnowFlake.GetRandomFlakeSize());
+					snowflakes.Add(newFlake);
 				}
-
-				updating.Accelerate();
-				updating.Move();
 			}
+
+			ConcurrentBag<SnowFlake> toRemove = new ConcurrentBag<SnowFlake>();
+
+			Parallel.ForEach(snowflakes, flake =>
+			{
+				flake.Move();
+
+				if (!flake.InBounds(screenSize))
+				{
+					toRemove.Add(flake);
+				}
+				else
+				{
+					flake.Accelerate();
+				}
+			});
+
+			snowflakes.ExceptWith(toRemove.ToArray());
 		}
 
-		/// <summary>
-		/// Gets the number of SnowFlakes currently in this SnowDrift.
-		/// </summary>
-		public int SnowFlakeCount
-		{
-			get { return numFlakes - snowFlakesTurnedOff; }
-		}
-
-		/// <summary>
-		/// Percentage of the capacity of the SnowDrift used up.
-		/// </summary>
-		public float Fullness
-		{
-			get { return (float)SnowFlakeCount / snowflakes.Length; }
-		}
+		#endregion
 	}
 }
