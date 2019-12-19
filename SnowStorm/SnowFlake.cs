@@ -795,6 +795,8 @@ namespace SnowStorm
 						drawPoint.Y = drawPoint.Y + (int)position.y;
 
 						// No need to bounds check pixel, it's in the snowflake
+						// Set pixel doesn't lock, but since we're only turning
+						// the pixel on one way there shouldn't be any problems
 						g.SetPixel8Bit(drawPoint.X, drawPoint.Y, byte.MaxValue);
 					}
 				}

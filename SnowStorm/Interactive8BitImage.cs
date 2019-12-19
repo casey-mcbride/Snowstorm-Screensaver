@@ -96,18 +96,12 @@ namespace SnowStorm
             // Calculate total number of bytes used by this 8 bit image
             bytes = bytesLine * height + height * byteBoundary;
 
-
-
-           
-
             pixels = new byte[bytes];
             
             for (int i = 0; i < pixels.Length; i++)
                 pixels[i] = 150;
 
             bitImage = new Bitmap( Width, Height, format );
-
-
         }
 
         /// <summary>

@@ -96,6 +96,7 @@
     <Compile Include="SnowStormOptions.Designer.cs">
       <DependentUpon>SnowStormOptions.cs</DependentUpon>
     </Compile>
+    <Compile Include="Utility\FpsCounter.cs" />
     <Compile Include="Utility\TimingScope.cs" />
     <Compile Include="Vector.cs" />
     <Compile Include="Interactive8BitImage.cs" />
