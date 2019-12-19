@@ -12,14 +12,14 @@ using SnowStorm.Utility;
 
 namespace SnowStorm
 {
-	class SnowStormDrawer : ScreenSaver.ScreenDrawer
+	public class SnowStormDrawer : ScreenSaver.ScreenDrawer
 	{
 		// Frame times for ramping up then down, then a little empty screen time to change
 		// the wind settings
 		const int RAMP_UP_FRAMES = 3000;
 		const int RAMP_DOWN_FRAMES = 5000;
 		const int RAMP_FRAMES_TOTAL = RAMP_UP_FRAMES + RAMP_DOWN_FRAMES;
-		const int EMPTY_SCREEN_FRAMES = 1000;
+		const int EMPTY_SCREEN_FRAMES = 300;
 
 		const int MIN_RAMP_DOWN_FLAKES = 8;
 
@@ -100,7 +100,7 @@ namespace SnowStorm
 #endif
 		}
 
-		public void Update()
+		public void Animate()
 		{
 			// Do performance check
 			fpsCounter.MarkFrame();
@@ -141,6 +141,11 @@ namespace SnowStorm
 
 			animatedDrift.TargetFlakes = targetFlakes;
 			animatedDrift.Update();
+		}
+
+		public void Render()
+		{
+			animatedDrift.RenderDisplay();
 		}
 	}
 }

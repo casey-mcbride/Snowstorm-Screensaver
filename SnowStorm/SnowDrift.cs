@@ -32,10 +32,9 @@ namespace SnowStorm
 		/// Different wind fields, either switched out for different snowflakes or for different times.
 		/// </summary>
 		private WindField[] windVariations;
-		/// <summary>
-		/// Drawing buffer for all the snowflakes.
-		/// </summary>
-		private Interactive8BitImage flakeBuffer;
+		private Interactive8BitImage nextBuffer;
+		private Interactive8BitImage renderedScene;
+
 		/// <summary>
 		/// All the snowflakes in this SnowDrift.
 		/// </summary>
@@ -85,10 +84,14 @@ namespace SnowStorm
 			this.screenSize = screenSize;
 
 			// Create a black and white buffer based on the adjusted screen sized
-			flakeBuffer = new Interactive8BitImage(screenSize.Width,
+			nextBuffer = new Interactive8BitImage(screenSize.Width,
 												screenSize.Height,
 												System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
-			flakeBuffer.SetAlpha(byte.MaxValue);
+			nextBuffer.SetAlpha(byte.MaxValue);
+			renderedScene = new Interactive8BitImage(screenSize.Width,
+												screenSize.Height,
+												System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+			renderedScene.SetAlpha(byte.MaxValue);
 
 			// Create the wind variations
 			generalDirection = new Vector(Random.Int(-5, 5), Random.Int(1, 4));
@@ -111,23 +114,30 @@ namespace SnowStorm
 		/// <param name="g">Graphics buffer to draw on.</param>
 		public void Draw(Graphics g)
 		{
-			updateDisplayBuffer();
-
 			//Draw to the buffer with enough border for the flakes to move offscreen
-			g.DrawImage(flakeBuffer.GetImage(),
+			g.DrawImage(renderedScene.GetImage(),
 						 -(int)SnowFlake.FLAKE_SIZES.Max(),
 						 -(int)SnowFlake.FLAKE_SIZES.Max());
 		}
 
-		private void updateDisplayBuffer()
+		public void RenderDisplay()
 		{
-			flakeBuffer.Clear(Color.Black);
+			nextBuffer.Clear(Color.Black);
 
 			// Draw each snowflakes pattern
 			Parallel.ForEach(snowflakes, flake =>
 			{
-				flake.Draw(flakeBuffer);
+				flake.Draw(nextBuffer);
 			});
+
+			swapBuffers();
+		}
+
+		private void swapBuffers()
+		{
+			Interactive8BitImage temp = renderedScene;
+			renderedScene = nextBuffer;
+			nextBuffer = temp;
 		}
 
 		/// <summary>
@@ -136,18 +146,18 @@ namespace SnowStorm
 		/// <returns>A new position vector.</returns>
 		private Vector GetNewSnowFlakePosition()
 		{
-			int position = this.flakeBuffer.Width + this.flakeBuffer.Height;
+			int position = this.nextBuffer.Width + this.nextBuffer.Height;
 			int x, y;
 			position = Random.Int(0, position - 1);
 
-			y = position - this.flakeBuffer.Width;
+			y = position - this.nextBuffer.Width;
 
 			if (y > 0)
 			{
 				if (generalDirection.x > 0)
 					x = 0;
 				else
-					x = flakeBuffer.Width - 1;
+					x = nextBuffer.Width - 1;
 			}
 			else
 			{

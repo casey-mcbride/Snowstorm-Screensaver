@@ -117,9 +117,7 @@
     <Compile Include="ScreenSaver\ScreenSaverForm.Designer.cs">
       <DependentUpon>ScreenSaverForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ScreenSaver\ScreenSaverInterface.cs" />
     <Compile Include="SnowStormDrawer.cs" />
-    <Compile Include="SnowStormScreenSaver.cs" />
     <Compile Include="WindField.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -174,9 +172,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\TextFile1.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

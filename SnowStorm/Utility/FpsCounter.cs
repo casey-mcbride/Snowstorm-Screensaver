@@ -61,7 +61,10 @@ namespace SnowStorm.Utility
 			currentFrameIndex = (currentFrameIndex + 1) % timePerFrameInMilliseconds.Length;
 
 			const int millisecondsPerSecond = 1000;
-			Fps = millisecondsPerSecond / (totalMilliseconds / timePerFrameInMilliseconds.Length); 
+			if (totalMilliseconds == 0)
+				Fps = 0;
+			else
+				Fps = millisecondsPerSecond * timePerFrameInMilliseconds.Length / totalMilliseconds; 
 		}
 	}
 }

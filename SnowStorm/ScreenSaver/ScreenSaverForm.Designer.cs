@@ -29,12 +29,7 @@
         private void InitializeComponent()
         {
 			this.components = new System.ComponentModel.Container();
-			this.updateTimer = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
-			// 
-			// updateTimer
-			// 
-            this.updateTimer.Tick += new System.EventHandler( this.updateTimer_Tick );
             // 
 			// 
 			// ScreenSaverForm
@@ -62,7 +57,5 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Timer updateTimer;
     }
 }

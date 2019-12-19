@@ -27,6 +27,6 @@ namespace ScreenSaver
         /// <summary>
         /// Updates the internal data for drawing the screen saver, occurs once in between drawings.
         /// </summary>
-        void Update();
+        void Animate();
     }
 }

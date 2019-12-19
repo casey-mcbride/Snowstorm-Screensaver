@@ -169,7 +169,7 @@ namespace SnowStorm
         }
 
         /// <summary>
-        /// Sets the bitImage.  Only used when it's being called to use.
+        /// Sets the bitImage.
         /// </summary>
         private void SetBitImage()
         {
